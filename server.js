@@ -1,16 +1,17 @@
 const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const blogpostsRouter = require('./blogpostsRouter')
 
 mongoose.Promise = global.Promise;
 
 const { PORT, DATABASE_URL } = require('./config');
-const { } = require('./models');
 
 const app = express();
 
 app.use(express.json());
 app.use(morgan('common'));
+app.use('/posts', blogpostsRouter);
 
 let server;
 
