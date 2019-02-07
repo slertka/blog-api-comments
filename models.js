@@ -1,23 +1,30 @@
-const mongoose = require('mongoose');
+'use strict';
 
-const authorSchema = mongoose.Schema({
-  firstName: { type: String },
-  lastName: { type: String },
-  userName: { 
-    type: String, 
+const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
+
+var authorSchema = mongoose.Schema({
+  firstName: 'string',
+  lastName: 'string',
+  userName: {
+    type: 'string',
     unique: true
   }
-})
-
-const blogpostSchema = mongoose.Schema({
-  title: { type: String },
-  author: { type: mongoose.Schema.Types.ObjectId, ref: 'Author'},
-  content: { type: String }
-})
-
-const commentSchema = mongoose.Schema({
-  content: { type: String }
 });
+
+var commentSchema = mongoose.Schema({ content: 'string' });
+
+var blogpostSchema = mongoose.Schema({
+  title: 'string',
+  content: 'string',
+  author: { type: mongoose.Schema.Types.ObjectId, ref: 'Author'},
+  comments: [commentSchema]
+});
+
+blogpostSchema.pre('find', function(next) {
+  this.populate('author');
+  next();
+})
 
 blogpostSchema.virtual('authorName').get(function() {
   return `${this.author.firstName} ${this.author.lastName}`;
@@ -29,12 +36,12 @@ blogpostSchema.methods.serialize = function () {
     title: this.title,
     author: this.authorName,
     content: this.content,
-    comments: [commentSchema],
+    comments: this.comments,
     created: new Date()
   }
 }
 
-const { Author } = mongoose.model('Author', authorSchema);
-const { Blogpost } = mongoose.model('Blogpost', blogpostSchema);
+var Author = mongoose.model('Author', authorSchema);
+const BlogPost = mongoose.model('BlogPost', blogpostSchema);
 
-module.exports = { Blogpost }
+module.exports = { BlogPost, Author };
