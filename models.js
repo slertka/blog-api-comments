@@ -24,6 +24,16 @@ var blogpostSchema = mongoose.Schema({
 blogpostSchema.pre('find', function(next) {
   this.populate('author');
   next();
+});
+
+blogpostSchema.pre('findById', function(next) {
+  this.populate('author');
+  next();
+});
+
+blogpostSchema.pre('findByIdAndUpdate', function(next) {
+  this.populate('author');
+  next();
 })
 
 blogpostSchema.virtual('authorName').get(function() {
