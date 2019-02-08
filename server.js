@@ -1,7 +1,8 @@
 const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const blogpostsRouter = require('./blogpostsRouter')
+const blogpostsRouter = require('./blogpostsRouter');
+const authorsRouter = require('./authorsRouter');
 
 mongoose.Promise = global.Promise;
 
@@ -12,6 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(morgan('common'));
 app.use('/posts', blogpostsRouter);
+app.use('/authors', authorsRouter);
 
 app.use('*', function(req, res) {
   res.status(404).json({message: `Not Found`});
