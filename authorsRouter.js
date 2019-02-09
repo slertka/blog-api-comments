@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { Author } = require('./models');
+const { Author, BlogPost } = require('./models');
 
 router.use(express.json());
 
@@ -84,5 +84,23 @@ router.put('/:id', (req, res) => {
       res.status(500).json({message: `Internal server error`})
     })
 }) 
+
+router.delete('/:id', (req, res) => {
+  // verify request id matches in body and params
+  if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
+    res.status(400).json({message: `Request body parameter ${req.body.id} must match request parameter id ${req.params.id}`})
+  }
+
+  BlogPost.remove({ author: req.params.id})
+    .then(() => {
+      Author.findByIdAndDelete(req.params.id)
+      .then(res.status(204).end());
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json({message: `Internal server error`})
+  })
+
+})
 
 module.exports = router;
