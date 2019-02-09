@@ -38,4 +38,51 @@ router.post('/', (req, res) => {
     })
 })
 
+router.put('/:id', (req, res) => {
+  // verify id params match
+  if (!(req.body.id && req.params.id && req.params.id === req.body.id)) {
+    res.status(400).json({message: `The request body id ${req.body.id} must match the request param id ${req.params.id}`});
+  }
+
+  // verify keys are correct
+  const updatableFields = ['firstName', 'lastName', 'userName', 'id'];
+  const bodyKeys = Object.keys(req.body);
+  for (let i=0; i<bodyKeys.length; i++) {
+    const bodyKey = bodyKeys[i];
+    if (!(updatableFields.includes(bodyKey))) {
+      res.status(400).json({message: `The request body key ${bodyKey} is not valid. Valid keys are 'firstName', 'lastName', or 'userName'.`})
+    }
+  }
+
+  // verify if username is already taken
+  if (req.body.userName) {
+    Author.findOne({userName: req.body.userName})
+      .then(author => {
+        if (author) {
+          res.status(400).json({message: `Username already exists`});
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).json({message: `Internal server error`});
+      })
+  }
+
+  Author.findById(req.params.id)
+    .then(author => {
+      Author.findByIdAndUpdate(req.params.id, { $set: req.body })
+        .then(updatedAuthor => {
+          res.json({
+            _id: updatedAuthor.id,
+            name: `${req.body.firstName || updatedAuthor.firstName} ${req.body.lastName || updatedAuthor.lastName}`,
+            userName: req.body.userName || updatedAuthor.userName
+          })
+        })
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({message: `Internal server error`})
+    })
+}) 
+
 module.exports = router;
