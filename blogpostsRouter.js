@@ -94,8 +94,8 @@ router.put('/:id', (req, res) => {
   BlogPost.findByIdAndUpdate(req.params.id, { $set: req.body })
     .populate('author')
     .then(blog => {res.status(200).json({
-      title: req.body.title,
-      content: req.body.content,
+      title: req.body.title || blog.title,
+      content: req.body.content || blog.content,
       author: blog.authorName,
       created: new Date()
     })})
